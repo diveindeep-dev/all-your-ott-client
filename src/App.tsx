@@ -1,13 +1,18 @@
 import { Route, Routes } from 'react-router-dom';
+import Layout from './layouts';
 import Index from './pages';
+import GlobalStyle from './styles/Global';
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Index />} />
-      </Routes>
-    </div>
+    <>
+      <GlobalStyle />
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Index />} />
+        </Routes>
+      </Layout>
+    </>
   );
 }
 
