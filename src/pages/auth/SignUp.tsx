@@ -1,6 +1,48 @@
 import { FocusEvent, FormEvent, useState } from 'react';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
+import styled from '@emotion/styled';
+import { LabelInput, PrimaryButton, AuthError } from '../../styles/Common';
+import { media } from '../../styles/Mixin';
+
+const Item = styled.label`
+  ${LabelInput}
+  padding: 10px 0;
+  font-size: 0.8rem;
+  div {
+    text-align: right;
+  }
+`;
+
+const Button = styled.button`
+  ${PrimaryButton}
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+
+  ${media.mobile} {
+    width: 100%;
+  }
+
+  div {
+    width: 100%;
+  }
+`;
+
+const Div = styled.div`
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+
+  ${media.mobile} {
+    flex-direction: column;
+    width: 100%;
+  }
+`;
 
 const initialValues: SignUpValue = {
   profileId: '',
@@ -59,7 +101,7 @@ function Signup() {
     }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     for (let key in values) {
       const value = values[key as keyof typeof values];
@@ -70,11 +112,11 @@ function Signup() {
   };
 
   return (
-    <div>
+    <Div>
       <h1>AYO 시작하기</h1>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <div>
-          <label>
+          <Item>
             아아디
             <input
               type="text"
@@ -84,9 +126,9 @@ function Signup() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.profileId}</div>
-          </label>
-          <label>
+            <AuthError>{errors.profileId}</AuthError>
+          </Item>
+          <Item>
             프로필 이름
             <input
               type="text"
@@ -96,9 +138,9 @@ function Signup() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.name}</div>
-          </label>
-          <label>
+            <AuthError>{errors.name}</AuthError>
+          </Item>
+          <Item>
             비밀번호
             <input
               type="password"
@@ -108,9 +150,9 @@ function Signup() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.password}</div>
-          </label>
-          <label>
+            <AuthError>{errors.password}</AuthError>
+          </Item>
+          <Item>
             비밀번호 확인
             <input
               type="password"
@@ -120,12 +162,12 @@ function Signup() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.passwordConfirm}</div>
-          </label>
+            <AuthError>{errors.passwordConfirm}</AuthError>
+          </Item>
         </div>
-        <button type="submit">가입하기</button>
-      </form>
-    </div>
+        <Button type="submit">가입하기</Button>
+      </Form>
+    </Div>
   );
 }
 
