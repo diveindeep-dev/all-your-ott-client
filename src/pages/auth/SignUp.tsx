@@ -1,9 +1,11 @@
 import { FocusEvent, FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
+import { checkDuplicateId, signUpApi } from '../../features/auth/api';
 import styled from '@emotion/styled';
 import { LabelInput, PrimaryButton, AuthError } from '../../styles/Common';
-import { media } from '../../styles/Mixin';
+import { flexCenter, media } from '../../styles/Mixin';
 
 const Item = styled.label`
   ${LabelInput}
@@ -33,6 +35,14 @@ const Form = styled.form`
   }
 `;
 
+const Container = styled.div`
+  ${flexCenter}
+  flex-direction: column;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+`;
+
 const Div = styled.div`
   display: flex;
   justify-content: space-around;
@@ -44,16 +54,25 @@ const Div = styled.div`
   }
 `;
 
-const initialValues: SignUpValue = {
+const initialValues: SignUpValues = {
   profileId: '',
   name: '',
   password: '',
   passwordConfirm: '',
 };
 
+interface checkProps {
+  isPass: boolean;
+  message: string;
+}
+
 function Signup() {
-  const { values, handleChange } = useForm({ initialValues });
-  const [errors, setErrors] = useState<SignUpValue>(initialValues);
+  const { values, handleChange, error, setError } = useForm({
+    initialValues,
+  });
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState<SignUpValues>(initialValues);
+  const [checked, setChecked] = useState<checkProps | null>(null);
 
   const checkSamePassword = (): string => {
     const { password, passwordConfirm } = values;
@@ -76,7 +95,7 @@ function Signup() {
     setErrors({ ...errors, ...newErrors });
   };
 
-  const handleOnBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleOnBlur = async (e: FocusEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     if (!value) {
       return setErrors({ ...errors, [name]: '필수 항목입니다.' });
@@ -95,8 +114,17 @@ function Signup() {
           passwordConfirm: checkSamePassword(),
         });
       }
+      if (name === 'profileId') {
+        setChecked(null);
+      }
       setErrors({ ...errors, [name]: message });
     } else {
+      if (name === 'profileId') {
+        const result = await checkDuplicateId(values.profileId);
+        if (result) {
+          setChecked(result.data);
+        }
+      }
       setErrors({ ...errors, [name]: '' });
     }
   };
@@ -108,6 +136,29 @@ function Signup() {
       if (!value) {
         return checkErrors();
       }
+    }
+    if (!checked || !checked.isPass) {
+      return setErrors({
+        ...errors,
+        profileId: '아이디를 중복체크해주세요.',
+      });
+    }
+
+    const newUser: AuthValues = {
+      profileId: values.profileId,
+      name: values.name,
+      password: values.password,
+    };
+
+    const result = await signUpApi(newUser);
+    if (result) {
+      if (result.status === 201) {
+        navigate('/login');
+      } else {
+        setError(result.data.message);
+      }
+    } else {
+      setError(`서버가 불안정합니다. 다시 시도해주세요.`);
     }
   };
 
@@ -126,7 +177,9 @@ function Signup() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <AuthError>{errors.profileId}</AuthError>
+            <AuthError isPass={checked ? checked.isPass : false}>
+              {errors.profileId || checked?.message}
+            </AuthError>
           </Item>
           <Item>
             프로필 이름
@@ -165,7 +218,10 @@ function Signup() {
             <AuthError>{errors.passwordConfirm}</AuthError>
           </Item>
         </div>
-        <Button type="submit">가입하기</Button>
+        <Container>
+          <AuthError>{error}</AuthError>
+          <Button type="submit">가입하기</Button>
+        </Container>
       </Form>
     </Div>
   );

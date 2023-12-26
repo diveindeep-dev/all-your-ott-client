@@ -1,8 +1,9 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent } from 'react';
 import useForm from '../../hooks/useForm';
+import { loginApi } from '../../features/auth/api';
 import styled from '@emotion/styled';
 import { AuthError, LabelInput, PrimaryButton } from '../../styles/Common';
-import { media } from '../../styles/Mixin';
+import { flexCenter, media } from '../../styles/Mixin';
 
 const Item = styled.label`
   ${LabelInput}
@@ -30,9 +31,8 @@ const Form = styled.form`
 `;
 
 const Container = styled.div`
-  display: flex;
+  ${flexCenter}
   flex-direction: column;
-  align-items: center;
   text-align: center;
   margin-top: 20px;
 `;
@@ -48,19 +48,32 @@ const Div = styled.div`
   }
 `;
 
-const initialValues: LogInValue = {
+const initialValues: LoginValues = {
   profileId: '',
   password: '',
 };
 
 function Login() {
-  const { values, handleChange } = useForm({ initialValues });
-  const [error, setError] = useState<string>('');
+  const { values, handleChange, error, setError } = useForm({ initialValues });
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!values.profileId || !values.password) {
       return setError('모든 항목을 입력하세요.');
+    }
+
+    const loginUser: LoginValues = values;
+    const result = await loginApi(loginUser);
+
+    if (result) {
+      if (result.status === 200) {
+        setError('');
+        localStorage.setItem('token', result.data.token);
+      } else {
+        setError(result.data.message);
+      }
+    } else {
+      setError('서버가 불안정합니다. 잠시후 다시 시도해주세요.');
     }
   };
 

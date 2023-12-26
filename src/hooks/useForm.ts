@@ -6,6 +6,7 @@ interface UseFormProps<T> {
 
 const useForm = <T>({ initialValues }: UseFormProps<T>) => {
   const [values, setValues] = useState<T>(initialValues);
+  const [error, setError] = useState<string>('');
 
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) =>
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -19,6 +20,8 @@ const useForm = <T>({ initialValues }: UseFormProps<T>) => {
     setValues,
     handleChange,
     resetValues,
+    error,
+    setError,
   };
 };
 
