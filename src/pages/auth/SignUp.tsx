@@ -1,5 +1,7 @@
 import { FocusEvent, FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from 'react-query';
+import { AxiosResponse } from 'axios';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
 import { checkDuplicateId, signUpApi } from '../../features/auth/api';
@@ -61,18 +63,27 @@ const initialValues: SignUpValues = {
   passwordConfirm: '',
 };
 
-interface checkProps {
-  isPass: boolean;
-  message: string;
-}
-
 function Signup() {
   const { values, handleChange, error, setError } = useForm({
     initialValues,
   });
   const navigate = useNavigate();
   const [errors, setErrors] = useState<SignUpValues>(initialValues);
-  const [checked, setChecked] = useState<checkProps | null>(null);
+  const [checked, setChecked] = useState<CheckRes | null>(null);
+
+  const { mutate: signUpMutate } = useMutation(
+    (newUser: AuthValues) => signUpApi(newUser),
+    {
+      onSuccess: ({ status }) => {
+        if (status === 201) {
+          navigate('/login');
+        }
+      },
+      onError: () => {
+        setError(`서버가 불안정합니다. 다시 시도해주세요.`);
+      },
+    },
+  );
 
   const checkSamePassword = (): string => {
     const { password, passwordConfirm } = values;
@@ -120,9 +131,11 @@ function Signup() {
       setErrors({ ...errors, [name]: message });
     } else {
       if (name === 'profileId') {
-        const result = await checkDuplicateId(values.profileId);
-        if (result) {
-          setChecked(result.data);
+        const response: AxiosResponse<CheckRes> = await checkDuplicateId(
+          values.profileId,
+        );
+        if (response) {
+          setChecked(response.data);
         }
       }
       setErrors({ ...errors, [name]: '' });
@@ -150,16 +163,7 @@ function Signup() {
       password: values.password,
     };
 
-    const result = await signUpApi(newUser);
-    if (result) {
-      if (result.status === 201) {
-        navigate('/login');
-      } else {
-        setError(result.data.message);
-      }
-    } else {
-      setError(`서버가 불안정합니다. 다시 시도해주세요.`);
-    }
+    signUpMutate(newUser);
   };
 
   return (

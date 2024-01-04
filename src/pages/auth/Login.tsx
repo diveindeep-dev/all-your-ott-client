@@ -1,4 +1,6 @@
 import { FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from 'react-query';
 import useForm from '../../hooks/useForm';
 import { loginApi } from '../../features/auth/api';
 import styled from '@emotion/styled';
@@ -56,6 +58,28 @@ const initialValues: LoginValues = {
 function Login() {
   const { values, handleChange, error, setError } = useForm({ initialValues });
 
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const { mutate: loginMutate } = useMutation(
+    (loginUser: LoginValues) => loginApi(loginUser),
+    {
+      onSuccess: ({ status, data }) => {
+        if (status === 200) {
+          setError('');
+          localStorage.setItem('token', data.token);
+          queryClient.refetchQueries(['user']);
+          navigate('/');
+        }
+      },
+      onError: ({ response }) => {
+        setError(
+          response.data.message || `서버가 불안정합니다. 다시 시도해주세요.`,
+        );
+      },
+    },
+  );
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!values.profileId || !values.password) {
@@ -63,18 +87,7 @@ function Login() {
     }
 
     const loginUser: LoginValues = values;
-    const result = await loginApi(loginUser);
-
-    if (result) {
-      if (result.status === 200) {
-        setError('');
-        localStorage.setItem('token', result.data.token);
-      } else {
-        setError(result.data.message);
-      }
-    } else {
-      setError('서버가 불안정합니다. 잠시후 다시 시도해주세요.');
-    }
+    loginMutate(loginUser);
   };
 
   return (
