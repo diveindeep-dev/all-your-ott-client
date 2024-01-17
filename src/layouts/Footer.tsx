@@ -4,11 +4,13 @@ import styled from '@emotion/styled';
 import { COLOR, FONT } from '../styles/Variables';
 
 const Title = styled.div`
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
   font-family: ${FONT.logo};
   font-size: 1.5rem;
   font-weight: 700;
-  p {
+  div {
     font-size: 1rem;
     font-weight: 400;
   }
@@ -16,11 +18,11 @@ const Title = styled.div`
 
 const FOOTER = styled.footer`
   padding: 50px 30px;
-  color: ${COLOR.text1};
-  background-color: ${COLOR.bg1};
+  color: ${COLOR.grey};
+  background-color: ${COLOR.subBg};
+
   div {
     display: flex;
-    align-items: center;
     padding: 5px 0;
 
     a {
@@ -43,7 +45,7 @@ function Footer() {
     <FOOTER>
       <Title>
         AYO
-        <p>- All Your OTT</p>
+        <div>- All Your OTT</div>
       </Title>
       <div>
         <RxGithubLogo />
