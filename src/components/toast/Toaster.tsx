@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react';
 import { randomId } from '../../utils/random';
-import getErrorMessage from '../../utils/getErrorMessgae';
+import getErrorMessage from '../../utils/getErrorMessage';
 
 type SetToastList = Dispatch<SetStateAction<Map<any, any>>>;
 
