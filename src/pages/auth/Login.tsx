@@ -68,7 +68,7 @@ function Login() {
         if (status === 200) {
           setError('');
           localStorage.setItem('token', data.token);
-          queryClient.refetchQueries(['user']);
+          queryClient.refetchQueries(['auth']);
           navigate('/');
         }
       },

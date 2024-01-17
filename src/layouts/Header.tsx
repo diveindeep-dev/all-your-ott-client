@@ -42,7 +42,7 @@ const Auth = styled.div`
 `;
 
 function Header() {
-  const { loginUser } = useRecoilValue(authState);
+  const { isAuthenticated, name } = useRecoilValue(authState);
   const { logout } = useAuth();
 
   return (
@@ -50,9 +50,9 @@ function Header() {
       <FirstLine>
         <Logo />
         <Auth>
-          {loginUser ? (
+          {isAuthenticated ? (
             <>
-              <User>{loginUser.name}</User>
+              <User>{name}</User>
               <Logout onClick={logout}>로그아웃</Logout>
             </>
           ) : (

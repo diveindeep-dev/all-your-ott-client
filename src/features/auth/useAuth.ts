@@ -1,22 +1,30 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { getUserByToken } from './api';
-import { authState } from '../state';
+import { authState, loginUserState } from '../state';
 import { useResetRecoilState, useSetRecoilState } from 'recoil';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const resetAuthState = useResetRecoilState(authState);
   const setAuthState = useSetRecoilState(authState);
+  const setLoginUserState = useSetRecoilState(loginUserState);
 
   const useToken = () => {
     const token = localStorage.getItem('token');
 
-    useQuery(['user'], getUserByToken, {
+    useQuery(['auth'], getUserByToken, {
       onSuccess: ({ data }) => {
-        setAuthState({ isAuthenticated: true, loginUser: data.loginUser });
+        setAuthState({
+          isAuthenticated: true,
+          _id: data.loginUser._id,
+          name: data.loginUser.name,
+        });
+        setLoginUserState(data.loginUser);
       },
       onError: () => {
-        setAuthState({ isAuthenticated: false, loginUser: null });
+        setAuthState({ isAuthenticated: false, _id: null, name: null });
+        setLoginUserState(null);
+        localStorage.removeItem('token');
       },
       retry: false,
       enabled: !!token,
@@ -26,7 +34,7 @@ export const useAuth = () => {
   const logout = () => {
     resetAuthState();
     localStorage.removeItem('token');
-    queryClient.removeQueries(['user']);
+    queryClient.removeQueries(['auth']);
   };
 
   return { useToken, logout };
