@@ -8,6 +8,7 @@ export const useAuth = () => {
   const resetAuthState = useResetRecoilState(authState);
   const setAuthState = useSetRecoilState(authState);
   const setLoginUserState = useSetRecoilState(loginUserState);
+  const resetLoginUserState = useResetRecoilState(loginUserState);
 
   const useToken = () => {
     const token = localStorage.getItem('token');
@@ -33,6 +34,7 @@ export const useAuth = () => {
 
   const logout = () => {
     resetAuthState();
+    resetLoginUserState();
     localStorage.removeItem('token');
     queryClient.removeQueries(['auth']);
   };
