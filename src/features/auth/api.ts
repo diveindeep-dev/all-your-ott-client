@@ -27,9 +27,19 @@ interface Token {
   };
 }
 
-export const getUserByToken = async (): Promise<AxiosResponse> => {
-  const token = localStorage.getItem('token');
-  const headers: Token = { headers: { authorization: `Bearer ${token}` } };
+const token = localStorage.getItem('token');
+const headers: Token = { headers: { authorization: `Bearer ${token}` } };
 
+export const getUserByToken = async (): Promise<AxiosResponse> => {
   return await axios.get('/api/auth', headers);
+};
+
+export const addSubscriptionApi = async (
+  newSubscription: SubscriptionInputValues,
+): Promise<AxiosResponse> => {
+  return await axios.put(
+    `/api/auth/subscription/add`,
+    newSubscription,
+    headers,
+  );
 };

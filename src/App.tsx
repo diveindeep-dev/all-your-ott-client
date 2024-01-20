@@ -7,6 +7,7 @@ import Index from './pages';
 import Signup from './pages/auth/SignUp';
 import Login from './pages/auth/Login';
 import GlobalStyle from './styles/Global';
+import Subscription from './pages/subscription';
 
 function App() {
   const { isAuthenticated } = useRecoilValue(authState);
@@ -28,6 +29,7 @@ function App() {
             path="/login"
             element={isAuthenticated ? <Navigate replace to="/" /> : <Login />}
           />
+          <Route path="/subscription" element={<Subscription />} />
         </Routes>
       </Layout>
     </>
